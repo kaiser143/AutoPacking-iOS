@@ -12,8 +12,8 @@
 # ************************* 需要配置 Start ********************************
 
 # 【配置上传到蒲公英相关信息】(可选)
-__PGYER_U_KEY="4xxxxxxxxxxxxxxxb"
-__PGYER_API_KEY="3xxxxxxxxxxxxxx5"
+__PGYER_U_KEY="6b3437dffe7ecb7b29c348967cfe5783"
+__PGYER_API_KEY="fb804b2fba6ee9bbac3e61d9691e246e"
 
 # 【配置上传到 Fir】(可选)
 __FIR_API_TOKEN="xKKdjdldlodeikK626266skdkkddK"
@@ -21,6 +21,7 @@ __FIR_API_TOKEN="xKKdjdldlodeikK626266skdkkddK"
 # 【配置证书】(如果只有一个证书时该项 可选)
 __CODE_SIGN_DISTRIBUTION="iPhone Distribution: xxxxxxxxxxxCo., Ltd."
 __CODE_SIGN_DEVELOPMENT="iPhone Developer: xxxx xxxx (5xxxxxxxxxx2V)"
+__TEAM_ID="xxx"
 
 # 发布APP Store 账号密码
 __IOS_SUBMIT_ACCOUNT="apple id"
@@ -80,18 +81,19 @@ function printMessage() {
 }
 
 # 1. 请选择 SCHEME
-__SELECT_TARGET_OPTIONS=("1.AutoPackingDemo")
-READ_USER_INPUT "请选择对应的Target: " "${__SELECT_TARGET_OPTIONS[*]}" ${#__SELECT_TARGET_OPTIONS[*]}
+# __SELECT_TARGET_OPTIONS=("1.AutoPackingDemo")
+# READ_USER_INPUT "请选择对应的Target: " "${__SELECT_TARGET_OPTIONS[*]}" ${#__SELECT_TARGET_OPTIONS[*]}
 
-__SELECT_TARGET_OPTION=$?
-if [[ $__SELECT_TARGET_OPTION -eq 1 ]]; then
-  __BUILD_TARGET="AutoPackingDemo"
-  __SCHEME_NAME="AutoPackingDemo"
-else
-  printMessage "这里请填写好你工程的所有target, 如果只有一个建议写死如下"
-  # __BUILD_TARGET="AutoPackingDemo"
-  exit 1
-fi
+# __SELECT_TARGET_OPTION=$?
+# if [[ $__SELECT_TARGET_OPTION -eq 1 ]]; then
+#   __BUILD_TARGET="AutoPackingDemo"
+#   __SCHEME_NAME="AutoPackingDemo"
+# else
+#   printMessage "这里请填写好你工程的所有target, 如果只有一个建议写死如下"
+#   # __BUILD_TARGET="AutoPackingDemo"
+#   exit 1
+# fi
+__BUILD_TARGET="Ljj"
 
 # 2.Debug 或者 Release 选项
 __PACK_ENV_OPTIONS=("1.Release" "2.Debug")
@@ -130,7 +132,7 @@ elif [[ $__PACK_TYPE -eq 4 ]]; then
 fi
 
 # 5.上传安装包到指定位置
-__UPLOAD_IPA_OPTIONS=("1.None" "2.Pgyer" "3.Fir" "4.Pgyer")
+__UPLOAD_IPA_OPTIONS=("1.None" "2.Pgyer" "3.Fir" "4.AppStore")
 READ_USER_INPUT "请选择ipa上传位置: " "${__UPLOAD_IPA_OPTIONS[*]}" ${#__UPLOAD_IPA_OPTIONS[*]}
 
 __UPLOAD_IPA_OPTION=$?
@@ -226,7 +228,7 @@ if [[ $__IS_WORKSPACE_OPTION -eq 1 ]]; then
     # step 1. Clean
     xcodebuild clean  -workspace ${__PROJECT_NAME}.xcworkspace \
     -scheme ${__SCHEME_NAME} \
-    -configuration ${__BUILD_CONFIGURATION}
+    -configuration ${__BUILD_CONFIGURATION} | xcpretty -c
 
     # step 2. Archive
     xcodebuild archive  -workspace ${__PROJECT_NAME}.xcworkspace \
@@ -236,12 +238,13 @@ if [[ $__IS_WORKSPACE_OPTION -eq 1 ]]; then
     CFBundleVersion=${__BUNDLE_BUILD_VERSION} \
     -destination generic/platform=ios \
     #CODE_SIGN_IDENTITY="${__CODE_SIGN_DEVELOPMENT}"
+    DEVELOPMENT_TEAM=${__TEAM_ID} | xcpretty -c
 
   elif [[ ${__BUILD_CONFIGURATION} == "Release" ]]; then
     # step 1. Clean
     xcodebuild clean  -workspace ${__PROJECT_NAME}.xcworkspace \
     -scheme ${__SCHEME_NAME} \
-    -configuration ${__BUILD_CONFIGURATION}
+    -configuration ${__BUILD_CONFIGURATION} | xcpretty -c
 
     # step 2. Archive
     xcodebuild archive  -workspace ${__PROJECT_NAME}.xcworkspace \
@@ -251,6 +254,7 @@ if [[ $__IS_WORKSPACE_OPTION -eq 1 ]]; then
     CFBundleVersion=${__BUNDLE_BUILD_VERSION} \
     -destination generic/platform=ios \
     #CODE_SIGN_IDENTITY="${__CODE_SIGN_DISTRIBUTION}"
+    DEVELOPMENT_TEAM=${__TEAM_ID} | xcpretty -c
   fi
 
 else
@@ -259,7 +263,7 @@ else
     # step 1. Clean
     xcodebuild clean  -project ${__PROJECT_NAME}.xcodeproj \
     -scheme ${__SCHEME_NAME} \
-    -configuration ${__BUILD_CONFIGURATION} \
+    -configuration ${__BUILD_CONFIGURATION} | xcpretty -c \
     #-alltargets
 
     # step 2. Archive
@@ -269,14 +273,15 @@ else
     -archivePath ${__EXPORT_ARCHIVE_PATH} \
     CFBundleVersion=${__BUNDLE_BUILD_VERSION} \
     -destination generic/platform=ios \
-    #CODE_SIGN_IDENTITY="${__CODE_SIGN_DEVELOPMENT}"
+    #CODE_SIGN_IDENTITY="${__CODE_SIGN_DISTRIBUTION}"
+    DEVELOPMENT_TEAM=${__TEAM_ID} | xcpretty -c
 
   elif [[ ${__BUILD_CONFIGURATION} == "Release" ]]; then
     # step 1. Clean
     xcodebuild clean  -project ${__PROJECT_NAME}.xcodeproj \
     -scheme ${__SCHEME_NAME} \
     -configuration ${__BUILD_CONFIGURATION} \
-    -alltargets
+    -alltargets | xcpretty -c
     # step 2. Archive
     xcodebuild archive  -project ${__PROJECT_NAME}.xcodeproj \
     -scheme ${__SCHEME_NAME} \
@@ -285,6 +290,7 @@ else
     CFBundleVersion=${__BUNDLE_BUILD_VERSION} \
     -destination generic/platform=ios \
     #CODE_SIGN_IDENTITY="${__CODE_SIGN_DISTRIBUTION}"
+    DEVELOPMENT_TEAM=${__TEAM_ID} | xcpretty -c
   fi
 fi
 
@@ -303,7 +309,7 @@ xcodebuild -exportArchive -archivePath ${__EXPORT_ARCHIVE_PATH} \
 -exportPath ${__EXPORT_IPA_PATH} \
 -destination generic/platform=ios \
 -exportOptionsPlist ${__EXPORT_OPTIONS_PLIST_PATH} \
--allowProvisioningUpdates
+-allowProvisioningUpdates | xcpretty -c
 
 # 修改ipa文件名称
 mv ${__EXPORT_IPA_PATH}/${__SCHEME_NAME}.ipa ${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa
@@ -332,18 +338,12 @@ if test -f "${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa" ; then
     printMessage "上传 ${__IPA_NAME}.ipa 包 到 fir 成功 🎉 🎉 🎉"
 
   elif [[ $__UPLOAD_IPA_OPTION -eq 4 ]]; then
+    # 验证并上传到App Store，将-u 后面的XXX替换成自己的AppleID的账号，-p后面的XXX替换成自己的密码
+    altoolPath="Applications/Xcode.app/Contents/Applications/Application Loader.app/Contents/Frameworks/ITunesSoftwareService.framework/Versions/A/Support/altool"
+    "$altoolPath" --validate-app -f "${__IPA_NAME}.ipa" -u "$__IOS_SUBMIT_ACCOUNT" -p "$__IOS_SUBMIT_PASSWORD" -t ios --output-format xml
+    "$altoolPath" --upload-app -f "${__IPA_NAME}.ipa" -u  "$__IOS_SUBMIT_ACCOUNT" -p "$__IOS_SUBMIT_PASSWORD" -t ios --output-format xml
 
-    fir login -T ${__FIR_API_TOKEN}
-    fir publish "${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa"
-
-    printMessage "上传 ${__IPA_NAME}.ipa 包 到 fir 成功 🎉 🎉 🎉"
-
-    curl -F "file=@{${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa}" \
-    -F "uKey=$__PGYER_U_KEY" \
-    -F "_api_key=$__PGYER_API_KEY" \
-    "http://www.pgyer.com/apiv1/app/upload"
-
-    printMessage "上传 ${__IPA_NAME}.ipa 包 到 pgyer 成功 🎉 🎉 🎉"
+    printMessage "上传 ${__IPA_NAME}.ipa 包 到 AppStore 成功 🎉 🎉 🎉"
 
   fi
 
