@@ -326,7 +326,7 @@ if test -f "${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa" ; then
     curl -F "file=@${__EXPORT_IPA_PATH}/${__IPA_NAME}.ipa" \
     -F "uKey=$__PGYER_U_KEY" \
     -F "_api_key=$__PGYER_API_KEY" \
-    "http://www.pgyer.com/apiv1/app/upload"
+    "http://www.pgyer.com/apiv1/app/upload" | iconv -t UTF-8
 
     printMessage "上传 ${__IPA_NAME}.ipa 包 到 pgyer 成功 🎉 🎉 🎉"
 
