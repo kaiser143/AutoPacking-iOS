@@ -170,9 +170,11 @@ __CURRENT_INFO_PLIST_NAME="Info.plist"
 # 获取 Info.plist 路径  【配置Info.plist的路径】
 __CURRENT_INFO_PLIST_PATH="${__PROJECT_NAME}/${__CURRENT_INFO_PLIST_NAME}"
 # 获取版本号
-__BUNDLE_VERSION=`/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" ${__CURRENT_INFO_PLIST_PATH}`
+# __BUNDLE_VERSION=`/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" ${__CURRENT_INFO_PLIST_PATH}`
+__BUNDLE_VERSION=`xcodebuild -showBuildSettings | grep MARKETING_VERSION`
 # 获取编译版本号
-__BUNDLE_BUILD_VERSION=`/usr/libexec/PlistBuddy -c "Print CFBundleVersion" ${__CURRENT_INFO_PLIST_PATH}`
+# __BUNDLE_BUILD_VERSION=`/usr/libexec/PlistBuddy -c "Print CFBundleVersion" ${__CURRENT_INFO_PLIST_PATH}`
+__BUNDLE_BUILD_VERSION=`xcodebuild -showBuildSettings | grep CURRENT_PROJECT_VERSION`
 
 # Xcode11 以上版本
 if [[ $XCODE_BUILD_VERSION =~ "Xcode 11" || $XCODE_BUILD_VERSION =~ "Xcode11" ]]; then
@@ -209,7 +211,7 @@ __EXPORT_IPA_PATH="${__EXPORT_PATH}"
 # 获取时间 如:201706011145
 __CURRENT_DATE="$(date +%Y%m%d_%H%M%S)"
 # ipa 名字
-__IPA_NAME="${__SCHEME_NAME}_V${__BUNDLE_BUILD_VERSION}_${__CURRENT_DATE}"
+__IPA_NAME="${__SCHEME_NAME}_v${__BUNDLE_VERSION}(${__BUNDLE_BUILD_VERSION})_${__CURRENT_DATE}"
 
 function print_packing_message() {
 
